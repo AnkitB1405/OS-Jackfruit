@@ -118,65 +118,65 @@ sudo rmmod monitor
 
 ### Screenshot 1 - Multi-Container Supervision
 
-Two or more containers running under one supervisor process.
+The supervisor is started once on the left, and two containers (`alpha` and `beta`) are launched from another terminal on the right under the same long-running control process.
 
-![Screenshot 1](screenshots/screenshot1.png)
+![Screenshot 1](screenshots/1.png)
 
 ---
 
 ### Screenshot 2 - Metadata Tracking
 
-`ps` output showing tracked container metadata including ID, PID, state, and configured limits.
+The `ps` command shows the tracked metadata for `alpha` and `beta`, including host PID, current state, exit field, and configured soft/hard memory limits.
 
-![Screenshot 2](screenshots/screenshot2.png)
+![Screenshot 2](screenshots/2.png)
 
 ---
 
 ### Screenshot 3 - Bounded-Buffer Logging
 
-Container output captured in per-container log files through the producer-consumer logging pipeline.
+The `logger` container emits `line1`, `line2`, `line3`, and `done`, and the `logs` command retrieves the captured output from the logging pipeline without dropped lines.
 
-![Screenshot 3](screenshots/screenshot3.png)
+![Screenshot 3](screenshots/3.png)
 
 ---
 
 ### Screenshot 4 - CLI and IPC
 
-A CLI command being issued and the supervisor replying over the control-plane IPC channel.
+The `stop alpha` command is issued from the CLI client, the supervisor responds with `OK: sent SIGTERM`, and a follow-up `ps` reflects the managed container set through the control IPC path.
 
-![Screenshot 4](screenshots/screenshot4.png)
+![Screenshot 4](screenshots/4.png)
 
 ---
 
 ### Screenshot 5 - Soft-Limit Warning
 
-`dmesg` showing the kernel module logging the first soft-limit warning for a monitored container.
+The kernel module logs the first `SOFT LIMIT` warning for container `hog1` after the memory-hog workload crosses the configured 8 MiB soft threshold.
 
-![Screenshot 5](screenshots/screenshot5.png)
+![Screenshot 5](screenshots/5.png)
 
 ---
 
 ### Screenshot 6 - Hard-Limit Enforcement
 
-`dmesg` and `ps` output showing a container killed after breaching the hard memory limit.
+`dmesg` records the `HARD LIMIT` event for `hog1`, and `ps` shows the container metadata after enforcement with the configured 8 MiB soft limit and 25 MiB hard limit.
 
-![Screenshot 6](screenshots/screenshot6.png)
+![Screenshot 6](screenshots/6.png)
 
 ---
 
 ### Screenshot 7 - Scheduling Experiment
 
-Logs or measured output comparing at least two scheduling configurations.
+Two CPU-bound containers are launched with different nice values (`cpulow` at `10` and `cpuhigh` at `-10`), and the collected logs show visibly different accumulation rates under Linux scheduling.
 
-![Screenshot 7](screenshots/screenshot7.png)
+![Screenshot 7](screenshots/7.png)
 
 ---
 
 ### Screenshot 8 - Clean Teardown
 
-Evidence that containers are reaped, threads exit, and no zombies remain after shutdown.
+Both containers are stopped, the supervisor prints a clean shutdown message, `ps` shows the final exited state, and the module is unloaded after checking for zombie processes.
 
-![Screenshot 8](screenshots/screenshot8.png)
+![Screenshot 8](screenshots/8.png)
 
 ---
 
