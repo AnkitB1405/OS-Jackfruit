@@ -532,7 +532,8 @@ static int child_fn(void *arg)
         return 1;
     close(config->pipe_write_fd);
 
-    (void)sethostname(config->id, strlen(config->id));
+    if (sethostname(config->id, strlen(config->id)) != 0)
+        perror("sethostname");
     (void)mount(NULL, "/", NULL, MS_REC | MS_PRIVATE, NULL);
 
     if (chroot(config->rootfs) != 0) {
@@ -551,8 +552,11 @@ static int child_fn(void *arg)
         return 1;
     }
 
-    if (config->nice_value != 0)
-        (void)nice(config->nice_value);
+    if (config->nice_value != 0) {
+        errno = 0;
+        if (nice(config->nice_value) == -1 && errno != 0)
+            perror("nice");
+    }
 
     execv("/bin/sh", argv);
     perror("execv");

@@ -40,14 +40,19 @@ The smoke check expects this command to succeed:
 make -C boilerplate ci
 ```
 
-That target should build only the user-space binaries needed for a quick compile check and should not require `sudo`, kernel headers, module loading, rootfs setup, or a running supervisor.
-
-Run the environment preflight check before implementation:
+During local iteration, force a rebuild so stale binaries do not hide warnings:
 
 ```bash
-cd boilerplate
-chmod +x environment-check.sh
-sudo ./environment-check.sh
+make -B -C boilerplate ci
+```
+
+That target should build only the user-space binaries needed for a quick compile check and should not require `sudo`, kernel headers, module loading, rootfs setup, or a running supervisor.
+
+Run the environment preflight check before implementation, from the repository root:
+
+```bash
+chmod +x boilerplate/environment-check.sh
+sudo ./boilerplate/environment-check.sh
 ```
 
 Prepare the Alpine mini root filesystem:
@@ -323,6 +328,12 @@ For the inherited GitHub Actions smoke check, keep a CI-safe build path availabl
 make -C boilerplate ci
 ```
 
+For local warning checks after edits, prefer:
+
+```bash
+make -B -C boilerplate ci
+```
+
 This is only for quick user-space compilation checks on GitHub-hosted runners. Your full project must still build and run in the required Ubuntu VM environment.
 
 #### `README.md`
@@ -342,30 +353,30 @@ The following is a reference run sequence you can use as a starting point:
 
 ```bash
 # Build
-make
+make -C boilerplate
 
 # Load kernel module
-sudo insmod monitor.ko
+sudo insmod boilerplate/monitor.ko
 
 # Verify control device
 ls -l /dev/container_monitor
 
 # Start supervisor
-sudo ./engine supervisor ./rootfs-base
+sudo ./boilerplate/engine supervisor ./rootfs-base
 
 # Create per-container writable rootfs copies
 cp -a ./rootfs-base ./rootfs-alpha
 cp -a ./rootfs-base ./rootfs-beta
 
 # In another terminal: start two containers
-sudo ./engine start alpha ./rootfs-alpha /bin/sh --soft-mib 48 --hard-mib 80
-sudo ./engine start beta ./rootfs-beta /bin/sh --soft-mib 64 --hard-mib 96
+sudo ./boilerplate/engine start alpha ./rootfs-alpha /bin/sh --soft-mib 48 --hard-mib 80
+sudo ./boilerplate/engine start beta ./rootfs-beta /bin/sh --soft-mib 64 --hard-mib 96
 
 # List tracked containers
-sudo ./engine ps
+sudo ./boilerplate/engine ps
 
 # Inspect one container
-sudo ./engine logs alpha
+sudo ./boilerplate/engine logs alpha
 
 # Run memory test inside a container
 # (copy the test program into rootfs before launch if needed)
@@ -374,8 +385,8 @@ sudo ./engine logs alpha
 # and compare observed behavior
 
 # Stop containers
-sudo ./engine stop alpha
-sudo ./engine stop beta
+sudo ./boilerplate/engine stop alpha
+sudo ./boilerplate/engine stop beta
 
 # Stop supervisor if your design keeps it separate
 
